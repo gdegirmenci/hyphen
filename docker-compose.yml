@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
     hyphen_nginx:
         container_name: hyphen_nginx
@@ -18,11 +18,11 @@ services:
         build: ./docker
         restart: unless-stopped
         environment:
+            DB_CONNECTION: mysql
             DB_HOST: hyphen_mysql
             DB_DATABASE: hyphen_db
             DB_USERNAME: hyphen
             DB_PASSWORD: test
-            DB_CONNECTION: mysql
         links:
             - hyphen_mysql
         volumes:

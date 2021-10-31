@@ -14,4 +14,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/discount', [DiscountController::class, 'getDiscount']);
+Route::post('/discount', [DiscountController::class, 'getDiscount']);
