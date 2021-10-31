@@ -1,0 +1,51 @@
+version: '2'
+services:
+    hyphen_nginx:
+        container_name: hyphen_nginx
+        image: nginx:alpine
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - hyphen_network
+    hyphen_php:
+        container_name: hyphen_php
+        build: ./docker
+        restart: unless-stopped
+        environment:
+            DB_HOST: hyphen_mysql
+            DB_DATABASE: hyphen_db
+            DB_USERNAME: hyphen
+            DB_PASSWORD: test
+            DB_CONNECTION: mysql
+        links:
+            - hyphen_mysql
+        volumes:
+            - ./:/var/www
+            - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - hyphen_network
+    hyphen_mysql:
+        container_name: hyphen_mysql
+        image: mariadb:latest
+        restart: unless-stopped
+        ports:
+            - "3306:3306"
+        command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci', '--default-authentication-plugin=mysql_native_password']
+        volumes:
+            - .docker/data/mysql:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: hyphen_db
+            MYSQL_USER: hyphen
+            MYSQL_PASSWORD: test
+            MYSQL_ROOT_PASSWORD: test
+        networks:
+            - hyphen_network
+networks:
+    hyphen_network:
+        driver: bridge

@@ -1,0 +1,2 @@
+* * * * * root cd /var/www && /usr/local/bin/php artisan schedule:run >> /var/log/cron.log 2>&1
+# EOF is necessary to run cron properly
