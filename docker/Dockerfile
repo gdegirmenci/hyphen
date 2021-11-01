@@ -14,6 +14,9 @@ RUN apt-get update -y && apt-get install -y \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN docker-php-ext-install -j$(nproc) pdo pdo_mysql bcmath
 
+# Installing PCOV
+RUN pecl install pcov && docker-php-ext-enable pcov
+
 # Setting up and copy work directory
 WORKDIR /var/www
 COPY . /var/www
