@@ -30,26 +30,8 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
      */
     public function calculateDiscount(): Order
     {
-        $cheapestItem = $this->getCheapestItem();
-        $discountedItems = $this->getEligibleItems()
-            ->transform(function (Item $item) use ($cheapestItem) {
-                if ($item->getProductId() === $cheapestItem->getProductId()) {
-                    $discountedPrice = $this->applyDiscount($item->getTotalPrice(), $this->getDiscount());
-                    $item->setTotalPrice($discountedPrice);
-
-                    return $item;
-                }
-
-                return $item;
-            })
-            ->toArray();
-
-        $this->order->setItems($discountedItems);
-        $totalPrice = $this->order->getItems()
-            ->sum(function (Item $item) {
-                return $item->getTotalPrice();
-            });
-        $this->order->setTotalPrice($totalPrice);
+        $this->order->setItems($this->getDiscountedItems());
+        $this->updateTotalPrice();
 
         return $this->order;
     }
@@ -92,9 +74,30 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
     }
 
     /**
+     * @return array
+     */
+    protected function getDiscountedItems(): array
+    {
+        $cheapestItem = $this->getCheapestItem();
+
+        return $this->getEligibleItems()
+            ->transform(function (Item $item) use ($cheapestItem) {
+                if ($item->getProductId() === $cheapestItem->getProductId()) {
+                    $discountedPrice = $this->applyDiscount($item->getTotalPrice(), $this->getDiscount());
+                    $item->setTotalPrice($discountedPrice);
+
+                    return $item;
+                }
+
+                return $item;
+            })
+            ->toArray();
+    }
+
+    /**
      * @return Item
      */
-    public function getCheapestItem(): Item
+    protected function getCheapestItem(): Item
     {
         $prices = collect();
         $this->getEligibleItems()
@@ -121,5 +124,18 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
             ->filter(function (Item $item) {
                  return $item->getCategoryId() === $this->getCategoryId();
             });
+    }
+
+    /**
+     * @return void
+     */
+    protected function updateTotalPrice(): void
+    {
+        $totalPrice = $this->order
+            ->getItems()
+            ->sum(function (Item $item) {
+                return $item->getTotalPrice();
+            });
+        $this->order->setTotalPrice($totalPrice);
     }
 }
