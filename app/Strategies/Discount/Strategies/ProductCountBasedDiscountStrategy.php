@@ -30,7 +30,7 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
      */
     public function calculateDiscount(): Order
     {
-        $this->order->setItems($this->getDiscountedItems());
+        $this->order->setItems($this->getDiscountedItems()->toArray());
         $this->updateTotalPrice();
 
         return $this->order;
@@ -74,9 +74,9 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
     }
 
     /**
-     * @return array
+     * @return Collection
      */
-    protected function getDiscountedItems(): array
+    protected function getDiscountedItems(): Collection
     {
         $cheapestItem = $this->getCheapestItem();
 
@@ -90,8 +90,7 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
                 }
 
                 return $item;
-            })
-            ->toArray();
+            });
     }
 
     /**

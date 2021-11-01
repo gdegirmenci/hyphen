@@ -38,6 +38,15 @@ class DiscountService
                 }
             });
 
-        return (new DiscountStrategy($order))->calculateDiscount()->getOrder()->toArray();
+        return $this->getDiscountStrategy($order)->calculateDiscount()->getOrder()->toArray();
+    }
+
+    /**
+     * @param Order $order
+     * @return DiscountStrategy
+     */
+    protected function getDiscountStrategy(Order $order): DiscountStrategy
+    {
+        return new DiscountStrategy($order);
     }
 }

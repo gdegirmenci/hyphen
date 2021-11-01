@@ -7,6 +7,7 @@ use App\Strategies\Discount\Strategies\CategoryBasedDiscountStrategy;
 use App\Strategies\Discount\Strategies\DiscountStrategyInterface;
 use App\Strategies\Discount\Strategies\ProductCountBasedDiscountStrategy;
 use App\Strategies\Discount\Strategies\TotalPriceBasedDiscountStrategy;
+use Illuminate\Support\Collection;
 
 /**
  * Class DiscountStrategy
@@ -14,12 +15,6 @@ use App\Strategies\Discount\Strategies\TotalPriceBasedDiscountStrategy;
  */
 class DiscountStrategy
 {
-    const STRATEGIES = [
-        TotalPriceBasedDiscountStrategy::class,
-        ProductCountBasedDiscountStrategy::class,
-        CategoryBasedDiscountStrategy::class,
-    ];
-
     private Order $order;
 
     /**
@@ -35,10 +30,9 @@ class DiscountStrategy
      */
     public function calculateDiscount(): self
     {
-        collect(self::STRATEGIES)
+        $this->getStrategies()
             ->transform(function (string $strategy) {
-                /** @var DiscountStrategyInterface $strategy */
-                $strategy = new $strategy($this->order);
+                $strategy = $this->getStrategy($strategy);
 
                 if ($strategy->isEligibleToDiscount()) {
                     $this->setOrder($strategy->calculateDiscount());
@@ -63,5 +57,26 @@ class DiscountStrategy
     public function setOrder(Order $order): void
     {
         $this->order = $order;
+    }
+
+    /**
+     * @return Collection
+     */
+    protected function getStrategies(): Collection
+    {
+        return collect([
+            TotalPriceBasedDiscountStrategy::class,
+            ProductCountBasedDiscountStrategy::class,
+            CategoryBasedDiscountStrategy::class,
+        ]);
+    }
+
+    /**
+     * @param string $strategyClass
+     * @return DiscountStrategyInterface
+     */
+    protected function getStrategy(string $strategyClass): DiscountStrategyInterface
+    {
+        return new $strategyClass($this->order);
     }
 }
