@@ -62,7 +62,7 @@ class CategoryBasedDiscountStrategy implements DiscountStrategyInterface
     protected function getDiscountedItems(): Collection
     {
         return $this->getEligibleItems()
-            ->transform(function(Item $item) {
+            ->transform(function (Item $item) {
                 return $item->increaseQuantity();
             });
     }
