@@ -17,6 +17,7 @@
             <directory suffix=".php">./app</directory>
         </include>
         <exclude>
+            <directory suffix=".php">./app/Http/Controllers/</directory>
             <directory suffix=".php">./app/Console/Kernel.php</directory>
             <directory suffix=".php">./app/Exceptions</directory>
             <directory suffix=".php">./app/Http/Middleware</directory>
