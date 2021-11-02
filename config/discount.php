@@ -11,7 +11,7 @@ return [
     ],
     'product_count_based' => [
         'threshold' => env('PRODUCT_COUNT_BASED_DISCOUNT_STRATEGY_THRESHOLD', 2),
-        'discount' => env('TOTAL_PRICE_BASED_DISCOUNT_STRATEGY_DISCOUNT', 20),
+        'discount' => env('PRODUCT_COUNT_BASED_DISCOUNT_STRATEGY_DISCOUNT', 20),
         'category_id' => env('PRODUCT_COUNT_BASED_DISCOUNT_STRATEGY_CATEGORY_ID', 1),
     ],
 ];
