@@ -22,7 +22,7 @@ class ApplyDiscountTest extends TestCase
     {
         $totalPrice = random_int(50, 100);
         $discountPercentage = random_int(1, 10);
-        $expectedPrice = $totalPrice - ( $totalPrice * $discountPercentage / 100 );
+        $expectedPrice = $totalPrice - ($totalPrice * $discountPercentage / 100);
 
         $this->assertEquals($expectedPrice, $this->applyDiscount($totalPrice, $discountPercentage));
     }

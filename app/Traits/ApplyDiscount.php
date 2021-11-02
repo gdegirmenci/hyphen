@@ -15,6 +15,6 @@ trait ApplyDiscount
      */
     public function applyDiscount(float $price, int $discountPercentage): float
     {
-        return $price - ( $price * $discountPercentage / 100 );
+        return $price - ($price * $discountPercentage / 100);
     }
 }
