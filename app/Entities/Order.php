@@ -81,6 +81,18 @@ class Order implements Arrayable
     }
 
     /**
+     * @return void
+     */
+    public function updateTotalPrice(): void
+    {
+        $totalPrice = $this->getItems()
+            ->sum(function (Item $item) {
+                return $item->getTotalPrice();
+            });
+        $this->setTotalPrice($totalPrice);
+    }
+
+    /**
      * @return array
      */
     public function toArray(): array
