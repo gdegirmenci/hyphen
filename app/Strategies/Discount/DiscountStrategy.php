@@ -65,9 +65,9 @@ class DiscountStrategy
     protected function getStrategies(): Collection
     {
         return collect([
-            TotalPriceBasedDiscountStrategy::class,
             ProductCountBasedDiscountStrategy::class,
             CategoryBasedDiscountStrategy::class,
+            TotalPriceBasedDiscountStrategy::class,
         ]);
     }
 

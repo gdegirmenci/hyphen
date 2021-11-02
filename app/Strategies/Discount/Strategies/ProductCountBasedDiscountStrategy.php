@@ -31,7 +31,7 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
     public function calculateDiscount(): Order
     {
         $this->order->setItems($this->getDiscountedItems()->toArray());
-        $this->updateTotalPrice();
+        $this->order->updateTotalPrice();
 
         return $this->order;
     }
@@ -123,18 +123,5 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
             ->filter(function (Item $item) {
                  return $item->getCategoryId() === $this->getCategoryId();
             });
-    }
-
-    /**
-     * @return void
-     */
-    protected function updateTotalPrice(): void
-    {
-        $totalPrice = $this->order
-            ->getItems()
-            ->sum(function (Item $item) {
-                return $item->getTotalPrice();
-            });
-        $this->order->setTotalPrice($totalPrice);
     }
 }
