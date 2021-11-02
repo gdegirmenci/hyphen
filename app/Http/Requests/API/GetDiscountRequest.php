@@ -40,7 +40,7 @@ class GetDiscountRequest extends Request
     {
         $items = collect();
 
-        foreach($this->get('items') as $item) {
+        foreach ($this->get('items') as $item) {
             $items->push(
                 new Item(
                     $item['product-id'],

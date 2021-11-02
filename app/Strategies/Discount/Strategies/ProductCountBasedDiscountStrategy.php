@@ -121,7 +121,7 @@ class ProductCountBasedDiscountStrategy implements DiscountStrategyInterface
         return $this->order
             ->getItems()
             ->filter(function (Item $item) {
-                 return $item->getCategoryId() === $this->getCategoryId();
+                return $item->getCategoryId() === $this->getCategoryId();
             });
     }
 }

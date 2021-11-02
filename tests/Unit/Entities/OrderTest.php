@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Entities;
 
-
 use App\Entities\Order;
 use App\ValueObjects\Item;
 use Illuminate\Foundation\Testing\WithFaker;
