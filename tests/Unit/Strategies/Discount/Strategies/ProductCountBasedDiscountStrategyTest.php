@@ -52,13 +52,25 @@ class ProductCountBasedDiscountStrategyTest extends TestCase
     }
 
     /**
+     * @return array
+     */
+    public function isEligibleToDiscountDataProvider(): array
+    {
+        return [
+            [2, '1', '1', true],
+            [4, '3', '2', true],
+            [5, '3', '1', false],
+        ];
+    }
+
+    /**
      * @test
      * @covers ::__construct
      * @covers ::calculateDiscount
      */
     function it_should_return_order_and_calculate_discount()
     {
-        $this->setMockStrategy(['getDiscountedItems', 'updateTotalPrice']);
+        $this->setMockStrategy(['getDiscountedItems']);
         $productId = (string)random_int(1, 10);
         $quantity = (string)random_int(1, 10);
         $unitPrice = (string)random_int(1, 10);
@@ -68,7 +80,7 @@ class ProductCountBasedDiscountStrategyTest extends TestCase
 
         $this->strategy->expects($this->once())->method('getDiscountedItems')->willReturn($discountedItems);
         $this->order->expects($this->once())->method('setItems')->with($discountedItems->toArray());
-        $this->strategy->expects($this->once())->method('updateTotalPrice');
+        $this->order->expects($this->once())->method('updateTotalPrice');
 
         $this->assertEquals($this->order, $this->strategy->calculateDiscount());
     }
@@ -80,6 +92,42 @@ class ProductCountBasedDiscountStrategyTest extends TestCase
     function it_should_return_discount_threshold()
     {
         $this->assertEquals(config('discount.product_count_based.threshold'), $this->strategy->getDiscountThreshold());
+    }
+
+    /**
+     * @test
+     * @covers ::isEligibleToDiscount
+     * @dataProvider isEligibleToDiscountDataProvider
+     * @param int $threshold
+     * @param string $firstItemQuantity
+     * @param string $secondItemQuantity
+     * @param bool $result
+     */
+    function it_should_return_true_or_false_depends_on_eligibility_to_discount(
+        int $threshold,
+        string $firstItemQuantity,
+        string $secondItemQuantity,
+        bool $result
+    ) {
+        $this->setMockStrategy(['getEligibleItems', 'getDiscountThreshold']);
+        $firstItem = new Item(
+            (string)random_int(1, 10),
+            $firstItemQuantity,
+            (string)random_int(1, 10),
+            (string)random_int(1, 10)
+        );
+        $secondItem = new Item(
+            (string)random_int(1, 10),
+            $secondItemQuantity,
+            (string)random_int(1, 10),
+            (string)random_int(1, 10)
+        );
+        $eligibleItems = collect([$firstItem, $secondItem]);
+
+        $this->strategy->expects($this->once())->method('getEligibleItems')->willReturn($eligibleItems);
+        $this->strategy->expects($this->once())->method('getDiscountThreshold')->willReturn($threshold);
+
+        $this->assertEquals($result, $this->strategy->isEligibleToDiscount());
     }
 
     /**
@@ -104,5 +152,103 @@ class ProductCountBasedDiscountStrategyTest extends TestCase
             config('discount.product_count_based.discount'),
             $this->invokeMethod($this->strategy, 'getDiscount')
         );
+    }
+
+    /**
+     * @test
+     * @covers ::getDiscountedItems
+     */
+    function it_should_return_discounted_items()
+    {
+        $this->setMockStrategy(['getCheapestItem', 'getEligibleItems', 'applyDiscount', 'getDiscount']);
+        $firstItem = new Item(
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10)
+        );
+        $secondItem = new Item(
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10)
+        );
+        $eligibleItems = collect([$firstItem, $secondItem]);
+        $discount = random_int(1, 10);
+        $discountedPrice = (float)random_int(1, 10);
+
+        $this->strategy->expects($this->once())->method('getCheapestItem')->willReturn($firstItem);
+        $this->strategy->expects($this->once())->method('getEligibleItems')->willReturn($eligibleItems);
+        $this->strategy->expects($this->once())->method('getDiscount')->willReturn($discount);
+        $this->strategy
+            ->expects($this->once())
+            ->method('applyDiscount')
+            ->with($firstItem->getTotalPrice(), $discount)
+            ->willReturn($discountedPrice);
+
+        $discountedItems = $this->invokeMethod($this->strategy, 'getDiscountedItems');
+
+        // Set total price as discounted
+        $firstItem->setTotalPrice($discountedPrice);
+        // Prepare expected data
+        $expectedDiscountedItems = collect([$firstItem, $secondItem]);
+
+        $this->assertEquals($expectedDiscountedItems, $discountedItems);
+    }
+
+    /**
+     * @test
+     * @covers ::getCheapestItem
+     */
+    function it_should_return_cheapest_item()
+    {
+        $this->setMockStrategy(['getEligibleItems']);
+        $cheapestItem = new Item(
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10)
+        );
+        $secondItem = new Item(
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(20, 30),
+            (string)random_int(1, 10)
+        );
+        $eligibleItems = collect([$cheapestItem, $secondItem]);
+
+        $this->strategy->expects($this->once())->method('getEligibleItems')->willReturn($eligibleItems);
+
+        $this->assertEquals($cheapestItem, $this->invokeMethod($this->strategy, 'getCheapestItem'));
+    }
+
+    /**
+     * @test
+     * @covers ::getEligibleItems
+     */
+    function it_should_return_eligible_items()
+    {
+        $this->setMockStrategy(['getCategoryId']);
+        $categoryId = random_int(1, 10);
+        $firstItem = new Item(
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10)
+        );
+        $firstItem->setCategoryId($categoryId);
+        $secondItem = new Item(
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10),
+            (string)random_int(1, 10)
+        );
+        $secondItem->setCategoryId(random_int(15, 20));
+        $items = collect([$firstItem, $secondItem]);
+
+        $this->strategy->expects($this->exactly(2))->method('getCategoryId')->willReturn($categoryId);
+        $this->order->expects($this->once())->method('getItems')->willReturn($items);
+
+        $this->assertEquals(collect([$firstItem]), $this->invokeMethod($this->strategy, 'getEligibleItems'));
     }
 }

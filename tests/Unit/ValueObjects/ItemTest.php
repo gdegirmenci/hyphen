@@ -66,6 +66,20 @@ class ItemTest extends TestCase
 
     /**
      * @test
+     * @covers ::setTotalPrice
+     */
+    function it_should_set_total_price()
+    {
+        $oldTotalPrice = random_int(1, 10);
+        $newTotalPrice = random_int(1, 10);
+        $item = new Item($this->faker->name, (string)random_int(1, 10), (string)random_int(1, 10), (string)$oldTotalPrice);
+        $item->setTotalPrice($newTotalPrice);
+
+        $this->assertEquals((float)$newTotalPrice, $item->getTotalPrice());
+    }
+
+    /**
+     * @test
      * @covers ::setCategoryId
      */
     function it_should_set_category_id()

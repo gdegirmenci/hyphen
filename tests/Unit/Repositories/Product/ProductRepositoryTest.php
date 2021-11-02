@@ -37,6 +37,7 @@ class ProductRepositoryTest extends TestCase
 
     /**
      * @test
+     * @covers ::__construct
      * @covers ::getProductById
      */
     function it_should_return_product_by_id()

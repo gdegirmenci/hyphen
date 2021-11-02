@@ -55,6 +55,7 @@ class DiscountServiceTest extends ServiceTestSuite
 
     /**
      * @test
+     * @covers ::__construct
      * @covers ::getDiscount
      */
     function it_should_return_discount()

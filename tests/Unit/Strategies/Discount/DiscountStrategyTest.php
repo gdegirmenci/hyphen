@@ -18,9 +18,9 @@ use Tests\TestCase;
 class DiscountStrategyTest extends TestCase
 {
     const STRATEGIES = [
-        TotalPriceBasedDiscountStrategy::class,
         ProductCountBasedDiscountStrategy::class,
         CategoryBasedDiscountStrategy::class,
+        TotalPriceBasedDiscountStrategy::class,
     ];
 
     /**
